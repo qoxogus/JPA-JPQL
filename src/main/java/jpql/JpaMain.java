@@ -19,18 +19,20 @@ public class JpaMain {
 
         try {
 
-            Member member = new Member();
-            member.setUsername("member1");
-            member.setAge(10);
-            em.persist(member);
+            for(int i=0;i<100;i++) {
+                Member member = new Member();
+                member.setUsername("member1"+i);
+                member.setAge(i);
+                em.persist(member);
+            }
+
+            em.flush();
+            em.clear();
 
 //            Member result = em.createQuery("select m from Member m where m.username = :username", Member.class) //TypedQuery 타입정보를 받을 수 있을 때(반환 타입이 명확할 때 사용)
 //                    .setParameter("username", "member1")
 //                    .getSingleResult();
 //            System.out.println("result = " + result.getUsername());
-
-            em.flush();
-            em.clear();
 
 //            List<Member> result = em.createQuery("select m from Member m", Member.class) //select되는 대상이 많더라도 다 영속성 컨텍스트에 반영된다
 //                    .getResultList();
@@ -58,12 +60,22 @@ public class JpaMain {
 //            System.out.println("username = " + result[0]);
 //            System.out.println("age = " + result[1]);
 
-            List<MemberDTO> result = em.createQuery("select new jpql.dto.MemberDTO(m.username, m.age) from Member m", MemberDTO.class)
+//            List<MemberDTO> result = em.createQuery("select new jpql.dto.MemberDTO(m.username, m.age) from Member m", MemberDTO.class)
+//                    .getResultList();
+//
+//            MemberDTO memberDTO = result.get(0);
+//            System.out.println("memberDTO.getUsername() = " + memberDTO.getUsername());
+//            System.out.println("memberDTO.getAge() = " + memberDTO.getAge());
+
+            List<Member> result = em.createQuery("select m from Member m order by m.age desc", Member.class)
+                    .setFirstResult(1)
+                    .setMaxResults(10)
                     .getResultList();
-            
-            MemberDTO memberDTO = result.get(0);
-            System.out.println("memberDTO.getUsername() = " + memberDTO.getUsername());
-            System.out.println("memberDTO.getAge() = " + memberDTO.getAge());
+
+            System.out.println("result.size() = " + result.size());
+            for (Member member1 : result) {
+                System.out.println("member1 = " + member1);
+            }
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {
