@@ -3,6 +3,7 @@ package jpql;
 import jpql.dto.MemberDTO;
 import jpql.entity.Address;
 import jpql.entity.Member;
+import jpql.entity.Team;
 
 import javax.persistence.*;
 import java.util.List;
@@ -19,15 +20,20 @@ public class JpaMain {
 
         try {
 
-            for(int i=0;i<100;i++) {
-                Member member = new Member();
-                member.setUsername("member1"+i);
-                member.setAge(i);
-                em.persist(member);
-            }
+            Team team = new Team();
+            team.setName("teamA");
+            em.persist(team);
+
+            Member member = new Member();
+            member.setUsername("teamA");
+
+            member.setTeam(team);
+
+            em.persist(member);
 
             em.flush();
             em.clear();
+
 
 //            Member result = em.createQuery("select m from Member m where m.username = :username", Member.class) //TypedQuery 타입정보를 받을 수 있을 때(반환 타입이 명확할 때 사용)
 //                    .setParameter("username", "member1")
@@ -67,15 +73,19 @@ public class JpaMain {
 //            System.out.println("memberDTO.getUsername() = " + memberDTO.getUsername());
 //            System.out.println("memberDTO.getAge() = " + memberDTO.getAge());
 
-            List<Member> result = em.createQuery("select m from Member m order by m.age desc", Member.class)
-                    .setFirstResult(1)
-                    .setMaxResults(10)
+
+            String query = "select m from Member m join m.team t"; //inner join
+            String query1 = "select m from Member m left join m.team t"; //left outter join
+            String query2 = "select m from Member m, Team t where m.username = t.name"; //cross join
+            String query4 = "select m from Member m left join m.team t on t.name = 'teamA'"; //on절을 이용한 left조인
+            String query5 = "select m from Member m left join Team t on m.username = t.name"; //회원의 이름과 팀의 이름이 같은 대상 외부조인
+            List<Member> result = em.createQuery(query, Member.class)
                     .getResultList();
 
-            System.out.println("result.size() = " + result.size());
-            for (Member member1 : result) {
-                System.out.println("member1 = " + member1);
-            }
+//            System.out.println("result.size() = " + result.size());
+//            for (Member member1 : result) {
+//                System.out.println("member1 = " + member1);
+//            }
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {
