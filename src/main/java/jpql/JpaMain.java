@@ -79,7 +79,8 @@ public class JpaMain {
             String query2 = "select m from Member m, Team t where m.username = t.name"; //cross join
             String query4 = "select m from Member m left join m.team t on t.name = 'teamA'"; //on절을 이용한 left조인
             String query5 = "select m from Member m left join Team t on m.username = t.name"; //회원의 이름과 팀의 이름이 같은 대상 외부조인
-            List<Member> result = em.createQuery(query, Member.class)
+            String query6 = "select (select avg(m1.age) From Member m1) as avgAge from Member m join Team t on m.username = t.name"; //select절도 서브쿼리가 가능하다(하이버네이트지원) // from절은 서브쿼리가 불가능하다 조인으로 해결할 수 있으면 해결하고 안된다면 쿼리를 두번 날리는방법으로 해결하자 이 또한 안된다면 native로 넘긴다
+            List<Member> result = em.createQuery(query6, Member.class)
                     .getResultList();
 
 //            System.out.println("result.size() = " + result.size());
