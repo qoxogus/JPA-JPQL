@@ -8,6 +8,7 @@ import jpql.entity.Team;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.SplittableRandom;
 
 public class JpaMain {
 
@@ -111,10 +112,20 @@ public class JpaMain {
                     "from Member m";
             String query9 = "select coalesce(m.username, '이름없는회원') from Member m"; //username이 없다면 이름없는회원 이라고 나온다
             String query10 = "select nullif(m.username, '관리자') from Member m"; //username == 관리자라면 null반환 아니라면 사용자 이름 반환
-            List<String> result = em.createQuery(query10, String.class)
+            String query11 = "select 'a' || 'b' from Member m"; //concat concat('a', 'b')
+            String query12 = "select substring(m.username, 2, 3) From Member m"; //substring  잘라내기
+            String query13 = "select locate('de','abcdefg') from Member m "; //locate 4출력
+            String query14 = "select size(t.members) from Team t"; //1
+
+//            @OrderColumn
+            String query15 = "select index(t.members) from Team t"; //쓰지마라 그냥 ㅋㅋ
+
+//            List<String> result = em.createQuery(query12, String.class)
+//                    .getResultList();
+            List<Integer> result = em.createQuery(query14, Integer.class)
                     .getResultList();
 
-            for (String s : result) {
+            for (Integer  s : result) {
                 System.out.println("s = " + s);
             }
 
