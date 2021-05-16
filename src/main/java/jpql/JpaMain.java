@@ -3,6 +3,7 @@ package jpql;
 import jpql.dto.MemberDTO;
 import jpql.entity.Address;
 import jpql.entity.Member;
+import jpql.entity.MemberType;
 import jpql.entity.Team;
 
 import javax.persistence.*;
@@ -26,6 +27,7 @@ public class JpaMain {
 
             Member member = new Member();
             member.setUsername("teamA");
+            member.setType(MemberType.ADMIN);
 
             member.setTeam(team);
 
@@ -80,13 +82,24 @@ public class JpaMain {
             String query4 = "select m from Member m left join m.team t on t.name = 'teamA'"; //on절을 이용한 left조인
             String query5 = "select m from Member m left join Team t on m.username = t.name"; //회원의 이름과 팀의 이름이 같은 대상 외부조인
             String query6 = "select (select avg(m1.age) From Member m1) as avgAge from Member m join Team t on m.username = t.name"; //select절도 서브쿼리가 가능하다(하이버네이트지원) // from절은 서브쿼리가 불가능하다 조인으로 해결할 수 있으면 해결하고 안된다면 쿼리를 두번 날리는방법으로 해결하자 이 또한 안된다면 native로 넘긴다
-            List<Member> result = em.createQuery(query6, Member.class)
-                    .getResultList();
+            String query7 = "select m.username, 'HELLO', true from Member m where m.type = :userType"; //teamA, HELLO, true
+//            List<Member> result = em.createQuery(query7, Member.class)
+//                    .getResultList();
 
 //            System.out.println("result.size() = " + result.size());
 //            for (Member member1 : result) {
 //                System.out.println("member1 = " + member1);
 //            }
+
+            List<Object[]> result = em.createQuery(query7)
+                    .setParameter("userType", MemberType.ADMIN) //파라미터 바인딩
+                    .getResultList();
+
+            for (Object[] objects : result) {
+                System.out.println("objects[0] = " + objects[0]);
+                System.out.println("objects[0] = " + objects[1]);
+                System.out.println("objects[0] = " + objects[2]);
+            }
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {
