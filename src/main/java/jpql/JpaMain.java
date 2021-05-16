@@ -7,6 +7,7 @@ import jpql.entity.MemberType;
 import jpql.entity.Team;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.List;
 import java.util.SplittableRandom;
 
@@ -119,15 +120,38 @@ public class JpaMain {
 
 //            @OrderColumn
             String query15 = "select index(t.members) from Team t"; //쓰지마라 그냥 ㅋㅋ
+            String query16 = "select m.username from Member m"; //상태필드 m.username에서 더 뻗어나갈 수 없음, 더이상 탐색X
+            String query17 = "select m.team from Member m"; //단일값 연관경로 : 묵시적 내부조인(inner join) 발생, 탐색 O(ex m.team.name)  묵시적 내부조인이 일어나게 짜면 안된다 SQL과 JPQL을 최대한 맞추도록 코드를 짜보자
+            String query18 = "select t.members.size from Team t"; //컬렉션값 연관경로 : 묵시적 내부조인(inner join) 발생, 탐색 X (FROM절에서 명시적 조인을 통해 별칭을 얻으면 별칭을 통해 탐색가능)  팀에있는 멤버 수
+            String query19 = "select m.username from Team t  join t.members m"; //컬렉션값 연관경로 : (FROM절에서 "명시적 조인"을 통해 별칭을 얻으면 별칭을 통해 탐색가능)
+            //명시적 조인을 사용하자 묵시적 내부조인 사용하면 쿼리 튜닝도 힘들다;;
 
 //            List<String> result = em.createQuery(query12, String.class)
 //                    .getResultList();
-            List<Integer> result = em.createQuery(query14, Integer.class)
+//            List<Integer> result = em.createQuery(query16, Integer.class)
+//                    .getResultList();
+//            List<Team> result = em.createQuery(query17, Team.class)
+//                    .getResultList();
+//            List result = em.createQuery(query18, Collection.class)
+//                    .getResultList();
+//            Integer result = em.createQuery(query18, Integer.class)
+//                    .getSingleResult();
+//            System.out.println("result = " + result);
+//            List<Collection> result = em.createQuery(query19, Collection.class)
+//                    .getResultList();
+            List<String> stringList = em.createQuery(query19, String.class)
                     .getResultList();
+            System.out.println("stringList = " + stringList);
 
-            for (Integer  s : result) {
-                System.out.println("s = " + s);
-            }
+//            for (Integer  s : result) {
+//                System.out.println("s = " + s);
+//            }
+//            for (Team  s : result) {
+//                System.out.println("s = " + s);
+//            }
+//            for (Object o : result) {
+//                System.out.println("o = " + o);
+//            }
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {
