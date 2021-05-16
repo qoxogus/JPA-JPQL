@@ -26,7 +26,8 @@ public class JpaMain {
             em.persist(team);
 
             Member member = new Member();
-            member.setUsername("teamA");
+            member.setUsername("관리자");
+            member.setAge(10);
             member.setType(MemberType.ADMIN);
 
             member.setTeam(team);
@@ -91,14 +92,30 @@ public class JpaMain {
 //                System.out.println("member1 = " + member1);
 //            }
 
-            List<Object[]> result = em.createQuery(query7)
-                    .setParameter("userType", MemberType.ADMIN) //파라미터 바인딩
+//            List<Object[]> result = em.createQuery(query7)
+//                    .setParameter("userType", MemberType.ADMIN) //파라미터 바인딩
+//                    .getResultList();
+
+//            for (Object[] objects : result) {
+//                System.out.println("objects[0] = " + objects[0]);
+//                System.out.println("objects[0] = " + objects[1]);
+//                System.out.println("objects[0] = " + objects[2]);
+//            }
+
+            String query8 =
+                    "select " +
+                        "case when m.age <=10 then '학생요금' " +
+                            "when m.age >= 60 then '경로요금' " +
+                            "else '일반요금' " +
+                            "end  " +
+                    "from Member m";
+            String query9 = "select coalesce(m.username, '이름없는회원') from Member m"; //username이 없다면 이름없는회원 이라고 나온다
+            String query10 = "select nullif(m.username, '관리자') from Member m"; //username == 관리자라면 null반환 아니라면 사용자 이름 반환
+            List<String> result = em.createQuery(query10, String.class)
                     .getResultList();
 
-            for (Object[] objects : result) {
-                System.out.println("objects[0] = " + objects[0]);
-                System.out.println("objects[0] = " + objects[1]);
-                System.out.println("objects[0] = " + objects[2]);
+            for (String s : result) {
+                System.out.println("s = " + s);
             }
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
