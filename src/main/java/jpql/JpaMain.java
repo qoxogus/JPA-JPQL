@@ -33,21 +33,24 @@ public class JpaMain {
 
             Member member1 = new Member();
             member1.setUsername("회원1");
+            member1.setAge(0);
             member1.setTeam(teamA);
             em.persist(member1);
 
             Member member2 = new Member();
             member2.setUsername("회원2");
+            member2.setAge(0);
             member2.setTeam(teamA);
             em.persist(member2);
 
             Member member3 = new Member();
             member3.setUsername("회원3");
+            member3.setAge(0);
             member3.setTeam(teamB);
             em.persist(member3);
 
-            em.flush();
-            em.clear();
+//            em.flush();
+//            em.clear();
 
 
 //            Member result = em.createQuery("select m from Member m where m.username = :username", Member.class) //TypedQuery 타입정보를 받을 수 있을 때(반환 타입이 명확할 때 사용)
@@ -217,13 +220,28 @@ public class JpaMain {
 //                }
 //            }
 
-            List<Member> result = em.createNamedQuery("Member.findByUsername", Member.class)  //username이 회원1인 Member출력
-                    .setParameter("username", "회원1")
-                    .getResultList();
+//            List<Member> result = em.createNamedQuery("Member.findByUsername", Member.class)  //username이 회원1인 Member출력
+//                    .setParameter("username", "회원1")
+//                    .getResultList();
+//
+//            for (Member member : result) {
+//                System.out.println("member = " + member);
+//            }
 
-            for (Member member : result) {
-                System.out.println("member = " + member);
-            }
+            //flush자동호출, commit , query
+            int resultCount = em.createQuery("update Member m set m.age = 20") //한방쿼리로 DB에만 반영됨
+                    .executeUpdate();
+
+            em.clear(); //클리어  벌크연산후에서는 영속성컨텍스트를 초기화해야한다
+
+            Member findMember = em.find(Member.class, member1.getId());
+            System.out.println("findMember.getAge() = " + findMember.getAge()); //초기화하지않으면 0, 초기화하면 쿼리로 새로 가져와 20이 출력된다
+
+//            System.out.println("resultCount = " + resultCount);
+//
+//            System.out.println("member1.getAge() = " + member1.getAge());
+//            System.out.println("member2.getAge() = " + member2.getAge());
+//            System.out.println("member3.getAge() = " + member3.getAge());
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {
