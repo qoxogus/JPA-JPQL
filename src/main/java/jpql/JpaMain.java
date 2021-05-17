@@ -168,16 +168,39 @@ public class JpaMain {
             String query22 = "select t from Team t join fetch t.members";
             String query23 = "select distinct t from Team t join fetch t.members";
             String query24 = "select t from Team t";
+            String query25 = "select m from Member m where m = :member"; //엔티티를 파라미터로 전달
+            String query26 = "select m from Member m where m.id = :memberId"; //식별자(PK)를 파라미터로 전달
+            String query27 = "select m from Member m where m.team = :team"; //외래키
 
 //            List<Member> result = em.createQuery(query21, Member.class) //지연로딩보다 fetch조인이 항상 우선이라 result에 값들이 들어올때는 모두 프록시가 아닌 진짜엔티티가 들어온다  (다대일 관계)
 //                    .getResultList();
 
-            List<Team> result = em.createQuery(query24, Team.class)
-                    .setFirstResult(0)
-                    .setMaxResults(2)
+//            List<Team> result = em.createQuery(query24, Team.class)
+//                    .setFirstResult(0)
+//                    .setMaxResults(2)
+//                    .getResultList();
+
+            Member findMember = em.createQuery(query25, Member.class)
+                    .setParameter("member", member1)
+                    .getSingleResult();
+
+            Member findMemberId = em.createQuery(query26, Member.class)
+                    .setParameter("memberId", member1.getId())
+                    .getSingleResult();
+
+            List<Member> members = em.createQuery(query27, Member.class)
+                    .setParameter("team", teamA)
                     .getResultList();
 
-            System.out.println("result.size() = " + result.size());
+//            System.out.println("result.size() = " + result.size());
+
+            System.out.println("findMember = " + findMember);
+            //엔티티를 사용하여 조회를 하든 아이디를 사용해서 조회를 하든 값은 똑같다
+            System.out.println("findMemberId = " + findMemberId);
+
+            for (Member member : members) {
+                System.out.println("member = " + member); //팀에 있는 members두명 조회된 값 출력
+            }
 
 //            for (Member member : result) {
 //                System.out.println("member = " + member.getUsername() + "," + member.getTeam().getName());
@@ -187,12 +210,12 @@ public class JpaMain {
 //                //회원 100명(모두 팀 소속이 다름) -> 100방쿼리.. N + 1   (페치조인으로 해결하자..!)
 //            }
 
-            for (Team team : result) {
-                System.out.println("team = " + team.getName() + ", members=" + team.getMembers().size()); //일대 다 관계 (컬렉션 페치조인) 데이터 뻥튀기가 될 수 있음 (중복출력등)
-                for ( Member member : team.getMembers() ) {
-                    System.out.println("-> member = " + member); //중복회원이라는걸 보여주는 코드
-                }
-            }
+//            for (Team team : result) {
+//                System.out.println("team = " + team.getName() + ", members=" + team.getMembers().size()); //일대 다 관계 (컬렉션 페치조인) 데이터 뻥튀기가 될 수 있음 (중복출력등)
+//                for ( Member member : team.getMembers() ) {
+//                    System.out.println("-> member = " + member); //중복회원이라는걸 보여주는 코드
+//                }
+//            }
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {
