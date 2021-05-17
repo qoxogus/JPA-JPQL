@@ -167,11 +167,14 @@ public class JpaMain {
             String query21 = "select m from Member m join fetch m.team";
             String query22 = "select t from Team t join fetch t.members";
             String query23 = "select distinct t from Team t join fetch t.members";
+            String query24 = "select t from Team t";
 
 //            List<Member> result = em.createQuery(query21, Member.class) //지연로딩보다 fetch조인이 항상 우선이라 result에 값들이 들어올때는 모두 프록시가 아닌 진짜엔티티가 들어온다  (다대일 관계)
 //                    .getResultList();
 
-            List<Team> result = em.createQuery(query23, Team.class)
+            List<Team> result = em.createQuery(query24, Team.class)
+                    .setFirstResult(0)
+                    .setMaxResults(2)
                     .getResultList();
 
             System.out.println("result.size() = " + result.size());
