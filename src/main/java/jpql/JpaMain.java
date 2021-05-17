@@ -180,27 +180,27 @@ public class JpaMain {
 //                    .setMaxResults(2)
 //                    .getResultList();
 
-            Member findMember = em.createQuery(query25, Member.class)
-                    .setParameter("member", member1)
-                    .getSingleResult();
-
-            Member findMemberId = em.createQuery(query26, Member.class)
-                    .setParameter("memberId", member1.getId())
-                    .getSingleResult();
-
-            List<Member> members = em.createQuery(query27, Member.class)
-                    .setParameter("team", teamA)
-                    .getResultList();
+//            Member findMember = em.createQuery(query25, Member.class)
+//                    .setParameter("member", member1)
+//                    .getSingleResult();
+//
+//            Member findMemberId = em.createQuery(query26, Member.class)
+//                    .setParameter("memberId", member1.getId())
+//                    .getSingleResult();
+//
+//            List<Member> members = em.createQuery(query27, Member.class)
+//                    .setParameter("team", teamA)
+//                    .getResultList();
 
 //            System.out.println("result.size() = " + result.size());
 
-            System.out.println("findMember = " + findMember);
-            //엔티티를 사용하여 조회를 하든 아이디를 사용해서 조회를 하든 값은 똑같다
-            System.out.println("findMemberId = " + findMemberId);
-
-            for (Member member : members) {
-                System.out.println("member = " + member); //팀에 있는 members두명 조회된 값 출력
-            }
+//            System.out.println("findMember = " + findMember);
+//            //엔티티를 사용하여 조회를 하든 아이디를 사용해서 조회를 하든 값은 똑같다
+//            System.out.println("findMemberId = " + findMemberId);
+//
+//            for (Member member : members) {
+//                System.out.println("member = " + member); //팀에 있는 members두명 조회된 값 출력
+//            }
 
 //            for (Member member : result) {
 //                System.out.println("member = " + member.getUsername() + "," + member.getTeam().getName());
@@ -216,6 +216,14 @@ public class JpaMain {
 //                    System.out.println("-> member = " + member); //중복회원이라는걸 보여주는 코드
 //                }
 //            }
+
+            List<Member> result = em.createNamedQuery("Member.findByUsername", Member.class)  //username이 회원1인 Member출력
+                    .setParameter("username", "회원1")
+                    .getResultList();
+
+            for (Member member : result) {
+                System.out.println("member = " + member);
+            }
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {
