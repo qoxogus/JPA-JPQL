@@ -23,18 +23,28 @@ public class JpaMain {
 
         try {
 
-            Team team = new Team();
-            team.setName("teamA");
-            em.persist(team);
+            Team teamA = new Team();
+            teamA.setName("teamA");
+            em.persist(teamA);
 
-            Member member = new Member();
-            member.setUsername("관리자");
-            member.setAge(10);
-            member.setType(MemberType.ADMIN);
+            Team teamB = new Team();
+            teamB.setName("teamB");
+            em.persist(teamB);
 
-            member.setTeam(team);
+            Member member1 = new Member();
+            member1.setUsername("회원1");
+            member1.setTeam(teamA);
+            em.persist(member1);
 
-            em.persist(member);
+            Member member2 = new Member();
+            member2.setUsername("회원2");
+            member2.setTeam(teamA);
+            em.persist(member2);
+
+            Member member3 = new Member();
+            member3.setUsername("회원3");
+            member3.setTeam(teamB);
+            em.persist(member3);
 
             em.flush();
             em.clear();
@@ -126,6 +136,7 @@ public class JpaMain {
             String query19 = "select m.username from Team t  join t.members m"; //컬렉션값 연관경로 : (FROM절에서 "명시적 조인"을 통해 별칭을 얻으면 별칭을 통해 탐색가능)
             //명시적 조인을 사용하자 묵시적 내부조인 사용하면 쿼리 튜닝도 힘들다;;
 
+
 //            List<String> result = em.createQuery(query12, String.class)
 //                    .getResultList();
 //            List<Integer> result = em.createQuery(query16, Integer.class)
@@ -139,9 +150,9 @@ public class JpaMain {
 //            System.out.println("result = " + result);
 //            List<Collection> result = em.createQuery(query19, Collection.class)
 //                    .getResultList();
-            List<String> stringList = em.createQuery(query19, String.class)
-                    .getResultList();
-            System.out.println("stringList = " + stringList);
+//            List<String> stringList = em.createQuery(query19, String.class)
+//                    .getResultList();
+//            System.out.println("stringList = " + stringList);
 
 //            for (Integer  s : result) {
 //                System.out.println("s = " + s);
@@ -152,6 +163,33 @@ public class JpaMain {
 //            for (Object o : result) {
 //                System.out.println("o = " + o);
 //            }
+            String query20 = "select m from Member m";
+            String query21 = "select m from Member m join fetch m.team";
+            String query22 = "select t from Team t join fetch t.members";
+            String query23 = "select distinct t from Team t join fetch t.members";
+
+//            List<Member> result = em.createQuery(query21, Member.class) //지연로딩보다 fetch조인이 항상 우선이라 result에 값들이 들어올때는 모두 프록시가 아닌 진짜엔티티가 들어온다  (다대일 관계)
+//                    .getResultList();
+
+            List<Team> result = em.createQuery(query23, Team.class)
+                    .getResultList();
+
+            System.out.println("result.size() = " + result.size());
+
+//            for (Member member : result) {
+//                System.out.println("member = " + member.getUsername() + "," + member.getTeam().getName());
+//                //회원1, teamA(SQL)
+//                //회원2, teamA(1차캐시)
+//                //회원3, teamB(SQL)
+//                //회원 100명(모두 팀 소속이 다름) -> 100방쿼리.. N + 1   (페치조인으로 해결하자..!)
+//            }
+
+            for (Team team : result) {
+                System.out.println("team = " + team.getName() + ", members=" + team.getMembers().size()); //일대 다 관계 (컬렉션 페치조인) 데이터 뻥튀기가 될 수 있음 (중복출력등)
+                for ( Member member : team.getMembers() ) {
+                    System.out.println("-> member = " + member); //중복회원이라는걸 보여주는 코드
+                }
+            }
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {
